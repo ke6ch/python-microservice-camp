@@ -1,0 +1,51 @@
+version: "3.8"
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: "python manage.py runserver 0.0.0.0:8000"
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+    networks:
+      - default
+      - admin
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: "python consumer.py"
+    depends_on:
+      - db
+    networks:
+      - default
+      - admin
+  db:
+    image: mysql:5.7.22
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - .dbdata:/var/lib/mysql
+      - ./mysql:/tmp
+    ports:
+      - 33066:3306
+    networks:
+      - admin
+networks:
+  default:
+    external:
+      name: rabbitmq
+  admin:
+    internal: true
+volumes:
+  dbdata:
+    name: admin-data
+    driver: local

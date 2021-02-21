@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  mb:
+    container_name: rabbitmq
+    image: rabbitmq:3.8.9-management-alpine
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+    volumes:
+      - .mqdata:/var/lib/rabbitmq
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+networks:
+  default:
+    external:
+      name: rabbitmq
